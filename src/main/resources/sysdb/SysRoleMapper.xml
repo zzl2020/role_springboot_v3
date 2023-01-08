@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.example.role.mapper.SysRoleMapper">
+    <sql id="SysRoleReturns">
+        id,role_name roleName, role_desc roleDesc, status,create_time createTime, update_time updateTime
+    </sql>
+    <select id="findAll" resultType="SysRole">
+        select<include refid="SysRoleReturns"/>from sys_role
+    </select>
+    <select id="findById" resultType="SysRole" parameterType="java.lang.Integer">
+        select<include refid="SysRoleReturns"/>from sys_role where id=#{id}
+    </select>
+    <resultMap id="rolePermission" type="SysRole">
+        <id property="id" column="id"/>
+        <result property="roleName" column="role_name"/>
+        <result property="roleDesc" column="role_desc"/>
+        <collection property="permissions" ofType="SysPermission">
+            <id property="id" column="spid"/>
+            <result property="url" column="url"/>
+            <result property="pid" column="pid"/>
+            <result property="name" column="name"/>
+        </collection>
+    </resultMap>
+    <!--根据角色查询对应的权限-->
+    <select id="getRolePermission" parameterType="Integer" resultMap="rolePermission">
+        SELECT sr.id,sr.role_name,sr.role_desc,sp.id spid,sp.url,sp.pid,sp.name
+        from sys_role sr,sys_role_permission srp,sys_permission sp
+        where
+        sr.id =srp.role_id and srp.permission_id=sp.id
+        sr.id=#{id}
+    </select>
+    <insert id="insert" parameterType="SysRole">
+        insert into sys_role(role_name,role_desc,status,create_time,update_time) values
+        (#{roleName},#{roleDesc},#{status},now(),now());
+    </insert>
+    <update id="update" parameterType="SysRole">
+        update sys_role set role_name = #{roleName},role_desc = #{roleDesc},status = #{status},create_time =
+        #{createTime},update_time = now() where id=#{id};
+    </update>
+    <delete id="delete" parameterType="java.lang.Integer"
+    >delete from sys_role where id=#{id};
+    </delete>
+</mapper>

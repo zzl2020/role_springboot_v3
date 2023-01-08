@@ -1,0 +1,116 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.example.role.mapper.SysUserMapper">
+    <sql id="SysUserReturns">
+        id,user_name userName, `password`,icon,`desc`,phone,`status`,email,create_time createTime, update_time
+        updateTime
+    </sql>
+    <resultMap type="SysUser" id="userRoleMap">
+        <id property="id" column="id" />
+        <result property="userName" column="userName" />
+        <result property="phone" column="phone" />
+        <collection property="roles" ofType="SysRole">
+            <id property="id" column="rid" />
+            <result property="roleName" column="roleName" />
+            <result property="roleDesc" column="roleDesc" />
+        </collection>
+    </resultMap>
+    <resultMap type="SysUser" id="userRolePermissionMap">
+        <id property="id" column="id" />
+        <result property="userName" column="userName" />
+        <result property="phone" column="phone" />
+        <collection property="roles" ofType="SysRole">
+            <id property="id" column="rid" />
+            <result property="roleName" column="roleName" />
+            <result property="roleDesc" column="roleDesc" />
+            <collection property="permissions" ofType="SysPermission">
+                <id property="id" column="spid"/>
+                <result property="url" column="url" />
+                <result property="pid" column="pid" />
+                <result property="name" column="name" />
+            </collection>
+        </collection>
+    </resultMap>
+    <select id="findAll" resultType="SysUser">
+        select<include refid="SysUserReturns"/>from sys_user
+    </select>
+    <select id="findById" resultType="SysUser" parameterType="java.lang.Integer">
+        select<include refid="SysUserReturns"/>from sys_user where id=#{id}
+    </select>
+    <select id="getUser" parameterType="String" resultType="SysUser">
+        select
+        <include refid="SysUserReturns"/>
+        from sys_user
+        <where>
+            <if test="userName!=''&amp;&amp;phone==''">
+                user_name = #{userName}
+            </if>
+            <if test="phone!=''&amp;&amp;userName==''">
+                phone = #{phone}
+            </if>
+        </where>
+    </select>
+    <select id="getUserAndRoleAndPer" parameterType="String"  resultMap="userRolePermissionMap">
+        SELECT
+        su.id,
+        su.user_name userName,
+        su.phone,
+        sr.id rid,
+        sr.role_name roleName,
+        sr.role_desc roleDesc,
+        sp.id spid,
+        sp.url,
+        sp.name,
+        sp.pid
+        FROM
+        sys_user su,
+        sys_user_role sur,
+        sys_role sr,
+        sys_role_permission srp,
+        sys_permission sp
+        WHERE
+        su.id = sur.user_id
+        AND sur.role_id = sr.id
+        AND sr.id = srp.role_id
+        AND srp.permission_id = sp.id
+        AND su.`status` = 0
+        AND sr.`status` = 0
+        AND sp.`status` = 0
+        AND su.user_name =#{userName}
+    </select>
+    <select id="getUserAndRole" parameterType="String" resultMap="userRoleMap">
+        SELECT
+        su.id,
+        su.user_name userName,
+        su.phone,
+        sr.id rid,
+        sr.role_name roleName,
+        sr.role_desc roleDesc
+        FROM
+        sys_user su,
+        sys_user_role sur,
+        sys_role sr
+        WHERE
+        su.id = sur.user_id
+        AND sur.role_id = sr.id
+        AND su.`status` = 0
+        AND sr.`status` = 0
+        AND su.user_name =#{userName}
+    </select>
+    <select id="getUserByPhone" parameterType="String" resultType="SysUser">
+        select <include refid="SysUserReturns"/> from sys_user where phone=#{phone}
+    </select>
+    <insert id="insert" parameterType="SysUser">
+        insert into sys_user(user_name,`password`,icon,`desc`,phone,`status`,email,create_time,update_time) values
+        (#{userName},#{password},#{icon},#{desc},#{phone},#{status},#{email},now(),now());
+    </insert>
+    <update id="update" parameterType="SysUser">
+        update sys_user set user_name = #{userName},password = #{password},icon = #{icon},desc = #{desc},phone =
+        #{phone},status = #{status},email = #{email},create_time = #{createTime},update_time = now() where id=#{id};
+    </update>
+    <delete id="delete" parameterType="java.lang.Integer"
+    >delete from sys_user where id=#{id};
+    </delete>
+</mapper>

@@ -1,0 +1,41 @@
+mybatis:
+  mapper-locations: classpath:mysql/sysdb/*.xml
+  type-aliases-package: com.example.role.entity
+  configuration:
+    #开启控制台打印sql日志
+    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
+#配置服务端口号
+server:
+  port: 8081
+spring:
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    password: 123456
+    url: jdbc:mysql://127.0.0.1:3306/sysdb?serverTimezone=UTC&characterEncoding=utf-8&useUnicode=true&useSSL=false&allowPublicKeyRetrieval=true
+    username: root
+  servlet:
+    multipart:
+      #文件上传最大文件数
+      max-file-size: 10MB
+      max-request-size: 10MB
+  application:
+    name: role
+#文件上传存储路径
+upload:
+  filePath: D:/img/
+#配置短信发送相关信息
+aliyun:
+  accessKeyId: LTAI4GHFsiLvTg3WiMxCeDom
+  accessKeySecret: aWDIwSrnMsTYTa3ChnejraDw2fYG9n
+  dnsName: dysmsapi.aliyuncs.com
+  signName: 壁咚abc影城
+  templateCode: SMS_189621794
+#日志是否打印验证码
+print:
+  code: true
+#配置日志相关参数
+logging:
+  config: classpath:log/logback-spring.xml
+  level:
+    root: info
+    sql: debug
